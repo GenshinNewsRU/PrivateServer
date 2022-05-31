@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 601
+// EnetChannelId: 0
+// EnetIsReliable: true
+message WeaponAwakenRsp {
+	int32 retcode = 3;
+	uint64 target_weapon_guid = 1;
+	uint32 target_weapon_awaken_level = 13;
+	map<uint32, uint32> old_affix_level_map = 7;
+	map<uint32, uint32> cur_affix_level_map = 14;
+	uint64 avatar_guid = 10;
+}

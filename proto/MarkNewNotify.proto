@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 1227
+// EnetChannelId: 0
+// EnetIsReliable: true
+message MarkNewNotify {
+	uint32 mark_new_type = 10;
+	repeated uint32 id_list = 13;
+}

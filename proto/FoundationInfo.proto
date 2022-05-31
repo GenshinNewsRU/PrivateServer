@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "FoundationStatus.proto";
+
+message FoundationInfo {
+	FoundationStatus status = 1;
+	repeated uint32 uid_list = 2;
+	uint32 current_building_id = 3;
+	uint32 begin_build_time_ms = 4;
+}

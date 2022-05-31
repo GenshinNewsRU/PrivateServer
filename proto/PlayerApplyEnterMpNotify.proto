@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "OnlinePlayerInfo.proto";
+
+// CmdId: 1818
+// EnetChannelId: 0
+// EnetIsReliable: true
+message PlayerApplyEnterMpNotify {
+	OnlinePlayerInfo src_player_info = 11;
+	uint32 src_app_id = 6;
+	uint32 src_thread_index = 13;
+}

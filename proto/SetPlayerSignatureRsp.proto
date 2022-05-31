@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 4098
+// EnetChannelId: 0
+// EnetIsReliable: true
+message SetPlayerSignatureRsp {
+	int32 retcode = 14;
+	string signature = 6;
+}

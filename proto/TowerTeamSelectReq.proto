@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "TowerTeam.proto";
+
+// CmdId: 2417
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message TowerTeamSelectReq {
+	uint32 floor_id = 15;
+	repeated TowerTeam tower_team_list = 2;
+}

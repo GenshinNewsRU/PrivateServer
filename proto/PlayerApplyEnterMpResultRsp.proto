@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 1803
+// EnetChannelId: 0
+// EnetIsReliable: true
+message PlayerApplyEnterMpResultRsp {
+	int32 retcode = 6;
+	uint32 apply_uid = 4;
+	bool is_agreed = 12;
+	uint32 param = 9;
+}

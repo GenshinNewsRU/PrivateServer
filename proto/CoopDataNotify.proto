@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "CoopChapter.proto";
+
+// CmdId: 1976
+// EnetChannelId: 0
+// EnetIsReliable: true
+message CoopDataNotify {
+	repeated CoopChapter chapter_list = 13;
+	bool is_have_progress = 14;
+	uint32 cur_coop_point = 5;
+	repeated uint32 viewed_chapter_list = 2;
+}

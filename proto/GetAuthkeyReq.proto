@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 1435
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message GetAuthkeyReq {
+	string auth_appid = 12;
+	uint32 sign_type = 15;
+	uint32 authkey_ver = 7;
+}

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "AbilityInvokeEntry.proto";
+
+// CmdId: 1127
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message ClientAbilityChangeNotify {
+	uint32 entity_id = 6;
+	repeated AbilityInvokeEntry invokes = 8;
+	bool JCJNLMLGHJE = 10;
+}

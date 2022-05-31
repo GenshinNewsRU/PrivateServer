@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 658
+// EnetChannelId: 0
+// EnetIsReliable: true
+message ReliquaryPromoteRsp {
+	int32 retcode = 2;
+	uint64 target_reliquary_guid = 4;
+	uint32 old_promote_level = 11;
+	uint32 cur_promote_level = 14;
+	repeated uint32 old_append_prop_list = 3;
+	repeated uint32 cur_append_prop_list = 13;
+}

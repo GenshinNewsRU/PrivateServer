@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "TowerFloorRecord.proto";
+
+// CmdId: 2431
+// EnetChannelId: 0
+// EnetIsReliable: true
+message TowerFloorRecordChangeNotify {
+	repeated TowerFloorRecord tower_floor_record_list = 9;
+	bool is_finished_entrance_floor = 1;
+}

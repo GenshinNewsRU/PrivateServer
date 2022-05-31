@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 963
+// EnetChannelId: 0
+// EnetIsReliable: true
+message ChallengeDataNotify {
+	uint32 challenge_index = 8;
+	uint32 param_index = 9;
+	uint32 value = 1;
+}

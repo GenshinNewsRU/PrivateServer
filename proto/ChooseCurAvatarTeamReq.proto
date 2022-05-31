@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 1800
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message ChooseCurAvatarTeamReq {
+	uint32 team_id = 14;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 1097
+// EnetChannelId: 0
+// EnetIsReliable: true
+message ProudSkillExtraLevelNotify {
+	uint64 avatar_guid = 14;
+	uint32 talent_type = 10;
+	uint32 talent_index = 4;
+	uint32 extra_level = 5;
+}

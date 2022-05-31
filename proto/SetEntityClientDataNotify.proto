@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "EntityClientData.proto";
+
+// CmdId: 3375
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message SetEntityClientDataNotify {
+	uint32 entity_id = 13;
+	EntityClientData entity_client_data = 1;
+}

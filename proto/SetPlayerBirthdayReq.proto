@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "Birthday.proto";
+
+// CmdId: 4007
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message SetPlayerBirthdayReq {
+	Birthday birthday = 10;
+}

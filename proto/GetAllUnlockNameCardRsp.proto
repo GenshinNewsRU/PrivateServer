@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 4058
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message GetAllUnlockNameCardRsp {
+	int32 retcode = 13;
+	repeated uint32 name_card_list = 2;
+}

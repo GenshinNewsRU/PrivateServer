@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 149
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message ChangeGameTimeReq {
+	uint32 game_time = 9;
+	bool is_force_set = 7;
+	uint32 extra_days = 6;
+}

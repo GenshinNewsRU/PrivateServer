@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "Vector.proto";
+
+// CmdId: 622
+// EnetChannelId: 0
+// EnetIsReliable: true
+message DropHintNotify {
+	repeated uint32 item_id_list = 12;
+	Vector position = 1;
+}

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 108
+// EnetChannelId: 0
+// EnetIsReliable: true
+message ItemGivingRsp {
+	int32 retcode = 13;
+	uint32 giving_id = 6;
+	uint32 LEMILHEIALJ = 12;
+}

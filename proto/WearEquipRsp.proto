@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 697
+// EnetChannelId: 0
+// EnetIsReliable: true
+message WearEquipRsp {
+	int32 retcode = 6;
+	uint64 avatar_guid = 10;
+	uint64 equip_guid = 5;
+}

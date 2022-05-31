@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "Item.proto";
+import "StoreType.proto";
+
+// CmdId: 641
+// EnetChannelId: 0
+// EnetIsReliable: true
+message StoreItemChangeNotify {
+	StoreType store_type = 9;
+	repeated Item item_list = 3;
+}

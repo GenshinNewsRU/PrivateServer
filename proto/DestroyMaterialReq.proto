@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "MaterialInfo.proto";
+
+// CmdId: 678
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message DestroyMaterialReq {
+	repeated MaterialInfo material_list = 12;
+}

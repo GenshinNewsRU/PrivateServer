@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 661
+// EnetChannelId: 0
+// EnetIsReliable: true
+message CombineDataNotify {
+	repeated uint32 combine_id_list = 5;
+}

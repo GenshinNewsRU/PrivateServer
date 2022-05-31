@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 4981
+// EnetChannelId: 0
+// EnetIsReliable: true
+message PrivateChatRsp {
+	int32 retcode = 2;
+	uint32 chat_forbidden_endtime = 10;
+}

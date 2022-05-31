@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "FriendBrief.proto";
+
+// CmdId: 4004
+// EnetChannelId: 0
+// EnetIsReliable: true
+message GetPlayerAskFriendListRsp {
+	int32 retcode = 15;
+	repeated FriendBrief ask_friend_list = 13;
+}

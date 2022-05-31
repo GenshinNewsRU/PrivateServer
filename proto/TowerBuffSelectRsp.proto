@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 2430
+// EnetChannelId: 0
+// EnetIsReliable: true
+message TowerBuffSelectRsp {
+	int32 retcode = 15;
+	uint32 tower_buff_id = 6;
+}

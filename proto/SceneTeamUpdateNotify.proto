@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "SceneTeamAvatar.proto";
+
+// CmdId: 1699
+// EnetChannelId: 0
+// EnetIsReliable: true
+message SceneTeamUpdateNotify {
+	repeated SceneTeamAvatar scene_team_avatar_list = 11;
+	bool is_in_mp = 1;
+}
