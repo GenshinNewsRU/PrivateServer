@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 612
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message ReliquaryPromoteReq {
+	uint64 target_guid = 4;
+	uint64 item_guid = 14;
+}

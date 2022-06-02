@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "ChatInfo.proto";
+
+// CmdId: 5035
+// EnetChannelId: 0
+// EnetIsReliable: true
+message PullPrivateChatRsp {
+	int32 retcode = 15;
+	repeated ChatInfo chat_info = 12;
+}

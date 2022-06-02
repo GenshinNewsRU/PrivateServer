@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 258
+// EnetChannelId: 0
+// EnetIsReliable: true
+message SceneEntityDrownRsp {
+	int32 retcode = 14;
+	uint32 entity_id = 10;
+}

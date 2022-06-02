@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "ProfilePicture.proto";
+
+// CmdId: 4090
+// EnetChannelId: 0
+// EnetIsReliable: true
+message SetPlayerHeadImageRsp {
+	int32 retcode = 13;
+	uint32 avatar_id = 3;
+	ProfilePicture profile_picture = 5;
+}

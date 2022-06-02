@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 172
+// EnetChannelId: 0
+// EnetIsReliable: true
+message PlayerTimeNotify {
+	bool is_paused = 8;
+	uint64 player_time = 4;
+	uint64 server_time = 14;
+}

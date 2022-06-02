@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 624
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message WeaponPromoteReq {
+	uint64 target_weapon_guid = 6;
+}

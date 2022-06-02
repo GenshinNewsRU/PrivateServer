@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "AiSkillCdInfo.proto";
+
+// CmdId: 333
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message EvtAiSyncSkillCdNotify {
+	map<uint32, AiSkillCdInfo> ai_cd_map = 5;
+}

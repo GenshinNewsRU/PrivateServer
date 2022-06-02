@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 1789
+// EnetChannelId: 0
+// EnetIsReliable: true
+message ChangeTeamNameRsp {
+	int32 team_id = 6;
+	string team_name = 2;
+	int32 retcode = 8;
+}

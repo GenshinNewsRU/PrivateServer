@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 717
+// EnetChannelId: 0
+// EnetIsReliable: true
+message GetShopmallDataRsp {
+	int32 retcode = 4;
+	repeated uint32 shop_type_list = 15;
+}

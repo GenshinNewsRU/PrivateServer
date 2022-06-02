@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 4162
+// EnetChannelId: 0
+// EnetIsReliable: true
+message PlayerGetForceQuitBanInfoRsp {
+	int32 retcode = 11;
+	uint32 match_id = 8;
+	uint32 expire_time = 5;
+}

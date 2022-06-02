@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "SocialDetail.proto";
+
+// CmdId: 4082
+// EnetChannelId: 0
+// EnetIsReliable: true
+message GetPlayerSocialDetailRsp {
+	int32 retcode = 2;
+	SocialDetail detail_data = 15;
+}

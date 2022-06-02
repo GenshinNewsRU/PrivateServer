@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "Vector.proto";
+
+// CmdId: 248
+// EnetChannelId: 0
+// EnetIsReliable: true
+message PersonalSceneJumpRsp {
+	int32 retcode = 15;
+	uint32 dest_scene_id = 2;
+	Vector dest_pos = 6;
+}

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "ItemParam.proto";
+
+// CmdId: 178
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message ItemGivingReq {
+	uint32 giving_id = 14;
+	repeated ItemParam item_param_list = 10;
+	map<uint64, uint32> item_guid_count_map = 6;
+}

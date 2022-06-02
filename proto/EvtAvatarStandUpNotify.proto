@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 384
+// EnetChannelId: 0
+// EnetIsReliable: true
+// IsAllowClient: true
+message EvtAvatarStandUpNotify {
+	uint32 entity_id = 10;
+	int32 direction = 3;
+	int32 perform_id = 8;
+	uint64 chair_id = 11;
+}

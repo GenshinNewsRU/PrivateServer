@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+// CmdId: 638
+// EnetChannelId: 0
+// EnetIsReliable: true
+message WeaponPromoteRsp {
+	int32 retcode = 11;
+	uint64 target_weapon_guid = 15;
+	uint32 old_promote_level = 5;
+	uint32 cur_promote_level = 2;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "ChatInfo.proto";
+
+// CmdId: 3295
+// EnetChannelId: 0
+// EnetIsReliable: true
+message PlayerChatNotify {
+	uint32 channel_id = 14;
+	ChatInfo chat_info = 12;
+}

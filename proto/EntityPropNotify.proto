@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "emu.grasscutter.net.proto";
+
+import "PropValue.proto";
+
+// CmdId: 1209
+// EnetChannelId: 0
+// EnetIsReliable: true
+message EntityPropNotify {
+	uint32 entity_id = 5;
+	map<uint32, PropValue> prop_map = 4;
+}
