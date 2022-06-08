@@ -2,6 +2,7 @@ package emu.grasscutter.game.player;
 
 import dev.morphia.annotations.*;
 import emu.grasscutter.GameConstants;
+import emu.grasscutter.Grasscutter;
 import emu.grasscutter.data.GameData;
 import emu.grasscutter.data.excels.PlayerLevelData;
 import emu.grasscutter.database.DatabaseHelper;
@@ -11,6 +12,8 @@ import emu.grasscutter.game.ability.AbilityManager;
 import emu.grasscutter.game.avatar.Avatar;
 import emu.grasscutter.game.avatar.AvatarProfileData;
 import emu.grasscutter.game.avatar.AvatarStorage;
+import emu.grasscutter.game.entity.EntityMonster;
+import emu.grasscutter.game.entity.EntityVehicle;
 import emu.grasscutter.game.managers.DeforestationManager.DeforestationManager;
 import emu.grasscutter.game.entity.EntityGadget;
 import emu.grasscutter.game.entity.EntityItem;
@@ -23,6 +26,7 @@ import emu.grasscutter.game.inventory.GameItem;
 import emu.grasscutter.game.inventory.Inventory;
 import emu.grasscutter.game.mail.Mail;
 import emu.grasscutter.game.mail.MailHandler;
+import emu.grasscutter.game.managers.InsectCaptureManager;
 import emu.grasscutter.game.managers.StaminaManager.StaminaManager;
 import emu.grasscutter.game.managers.SotSManager;
 import emu.grasscutter.game.managers.EnergyManager.EnergyManager;
@@ -47,6 +51,7 @@ import emu.grasscutter.net.proto.OnlinePlayerInfoOuterClass.OnlinePlayerInfo;
 import emu.grasscutter.net.proto.PlayerLocationInfoOuterClass.PlayerLocationInfo;
 import emu.grasscutter.net.proto.ProfilePictureOuterClass.ProfilePicture;
 import emu.grasscutter.net.proto.SocialDetailOuterClass.SocialDetail;
+
 import emu.grasscutter.server.event.player.PlayerJoinEvent;
 import emu.grasscutter.server.event.player.PlayerQuitEvent;
 import emu.grasscutter.server.game.GameServer;
@@ -85,6 +90,7 @@ public class Player {
 	private Set<Integer> nameCardList;
 	private Set<Integer> flyCloakList;
 	private Set<Integer> costumeList;
+	private Set<Integer> unlockedForgingBlueprints;
 
 	private Integer widgetId;
 
@@ -105,6 +111,7 @@ public class Player {
 	@Transient private QuestManager questManager;
 	
 	@Transient private SotSManager sotsManager;
+	@Transient private InsectCaptureManager insectCaptureManager;
 
 	private TeamManager teamManager;
 
@@ -161,6 +168,7 @@ public class Player {
 		this.towerManager = new TowerManager(this);
 		this.abilityManager = new AbilityManager(this);
 		this.deforestationManager = new DeforestationManager(this);
+		this.insectCaptureManager = new InsectCaptureManager(this);
 
 		this.setQuestManager(new QuestManager(this));
 		this.pos = new Position();
@@ -177,6 +185,7 @@ public class Player {
 		this.nameCardList = new HashSet<>();
 		this.flyCloakList = new HashSet<>();
 		this.costumeList = new HashSet<>();
+		this.unlockedForgingBlueprints = new HashSet<>();
 
 		this.setSceneId(3);
 		this.setRegionId(1);
@@ -507,6 +516,10 @@ public class Player {
 
 	public Set<Integer> getNameCardList() {
 		return this.nameCardList;
+	}
+
+	public Set<Integer> getUnlockedForgingBlueprints() {
+		return unlockedForgingBlueprints;
 	}
 
 	public MpSettingType getMpSetting() {
@@ -907,47 +920,46 @@ public class Player {
 	
 	public void interactWith(int gadgetEntityId) {
 		GameEntity entity = getScene().getEntityById(gadgetEntityId);
-
 		if (entity == null) {
 			return;
 		}
 
 		// Handle
-		if (entity instanceof EntityItem) {
+		if (entity instanceof EntityItem drop) {
 			// Pick item
-			EntityItem drop = (EntityItem) entity;
 			if (!drop.isShare()) // check drop owner to avoid someone picked up item in others' world
 			{
 				int dropOwner = (int)(drop.getGuid() >> 32);
-				if (dropOwner != getUid())
+				if (dropOwner != getUid()) {
 					return;
+				}
 			}
 			entity.getScene().removeEntity(entity);
 			GameItem item = new GameItem(drop.getItemData(), drop.getCount());
 			// Add to inventory
 			boolean success = getInventory().addItem(item, ActionReason.SubfieldDrop);
 			if (success) {
-				if (!drop.isShare()) // not shared drop
+				if (!drop.isShare()) { // not shared drop
 					this.sendPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_TYPE_PICK_ITEM));
-				else
+				}else{
 					this.getScene().broadcastPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_TYPE_PICK_ITEM));
+				}
 			}
-		} else if (entity instanceof EntityGadget) {
-			EntityGadget gadget = (EntityGadget) entity;
-			
+		} else if (entity instanceof EntityGadget gadget) {
 			if (gadget.getGadgetData().getType() == EntityType.RewardStatue) {
 				if (scene.getChallenge() != null) {
 					scene.getChallenge().getStatueDrops(this);
 				}
-				
 				this.sendPacket(new PacketGadgetInteractRsp(gadget, InteractType.INTERACT_TYPE_OPEN_STATUE));
 			}
+		} else if (entity instanceof EntityMonster monster) {
+			insectCaptureManager.arrestSmallCreature(monster);
+		} else if (entity instanceof EntityVehicle vehicle) {// try to arrest it, example: glowworm
+			insectCaptureManager.arrestSmallCreature(vehicle);
 		} else {
 			// Delete directly
 			entity.getScene().removeEntity(entity);
 		}
-
-		return;
 	}
 
 	public void onPause() {
@@ -1200,13 +1212,6 @@ public class Player {
 			this.getProfile().syncWithCharacter(this);
 		}
 
-		// Check if player object exists in server
-		// TODO - optimize
-		Player exists = this.getServer().getPlayerByUid(getUid());
-		if (exists != null) {
-			exists.getSession().close();
-		}
-
 		// Load from db
 		this.getAvatars().loadFromDatabase();
 		this.getInventory().loadFromDatabase();
@@ -1215,12 +1220,13 @@ public class Player {
 		this.getFriendsList().loadFromDatabase();
 		this.getMailHandler().loadFromDatabase();
 		this.getQuestManager().loadFromDatabase();
-		
+
 		// Add to gameserver (Always handle last)
 		if (getSession().isActive()) {
 			getServer().registerPlayer(this);
 			getProfile().setPlayer(this); // Set online
 		}
+
 	}
 
 	public void onLogin() {
@@ -1259,6 +1265,7 @@ public class Player {
 		session.send(new PacketWidgetGadgetAllDataNotify());
 		session.send(new PacketPlayerHomeCompInfoNotify(this));
 		session.send(new PacketHomeComfortInfoNotify(this));
+		session.send(new PacketForgeDataNotify(this));
 
 		getTodayMoonCard(); // The timer works at 0:0, some users log in after that, use this method to check if they have received a reward today or not. If not, send the reward.
 
@@ -1279,34 +1286,48 @@ public class Player {
 	}
 
 	public void onLogout() {
-		// stop stamina calculation
-		getStaminaManager().stopSustainedStaminaHandler();
+		try{
+			// stop stamina calculation
+			getStaminaManager().stopSustainedStaminaHandler();
 
-		// force to leave the dungeon
-		if (getScene().getSceneType() == SceneType.SCENE_DUNGEON) {
+			// force to leave the dungeon (inside has a "if")
 			this.getServer().getDungeonManager().exitDungeon(this);
+
+			// Leave world
+			if (this.getWorld() != null) {
+				this.getWorld().removePlayer(this);
+			}
+
+			// Status stuff
+			this.getProfile().syncWithCharacter(this);
+			this.getProfile().setPlayer(null); // Set offline
+
+			this.getCoopRequests().clear();
+
+			// Save to db
+			this.save();
+			this.getTeamManager().saveAvatars();
+			this.getFriendsList().save();
+
+			// Call quit event.
+			PlayerQuitEvent event = new PlayerQuitEvent(this); event.call();
+
+			//reset wood
+			getDeforestationManager().resetWood();
+
+		}catch (Throwable e){
+			e.printStackTrace();
+			Grasscutter.getLogger().warn("Player (UID {}) save failure", getUid());
+		}finally {
+			removeFromServer();
 		}
-		// Leave world
-		if (this.getWorld() != null) {
-			this.getWorld().removePlayer(this);
-		}
+	}
 
-		// Status stuff
-		this.getProfile().syncWithCharacter(this);
-		this.getProfile().setPlayer(null); // Set offline
-
-		this.getCoopRequests().clear();
-
-		// Save to db
-		this.save();
-		this.getTeamManager().saveAvatars();
-		this.getFriendsList().save();
-		
-		// Call quit event.
-		PlayerQuitEvent event = new PlayerQuitEvent(this); event.call();
-
-		//reset wood
-		getDeforestationManager().resetWood();
+	public void removeFromServer() {
+		// Remove from server.
+		//Note: DON'T DELETE BY UID,BECAUSE THERE ARE MULTIPLE SAME UID PLAYERS WHEN DUPLICATED LOGIN!
+		//so I decide to delete by object rather than uid
+		getServer().getPlayers().values().removeIf(player1 -> player1 == this);
 	}
 
 	public enum SceneLoadState {

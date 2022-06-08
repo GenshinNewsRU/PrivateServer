@@ -55,6 +55,7 @@ tmp/
 /resources
 /logs
 /plugins
+/data
 /keys
 /language
 /languages
@@ -62,7 +63,6 @@ tmp/
 
 /*.jar
 /*.sh
-/*.md
 
 GM Handbook.txt
 config.json
