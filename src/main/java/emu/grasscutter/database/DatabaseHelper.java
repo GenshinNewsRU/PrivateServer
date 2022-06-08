@@ -13,6 +13,7 @@ import emu.grasscutter.game.Account;
 import emu.grasscutter.game.avatar.Avatar;
 import emu.grasscutter.game.friends.Friendship;
 import emu.grasscutter.game.gacha.GachaRecord;
+import emu.grasscutter.game.home.GameHome;
 import emu.grasscutter.game.inventory.GameItem;
 import emu.grasscutter.game.mail.Mail;
 import emu.grasscutter.game.player.Player;
@@ -22,32 +23,28 @@ import static com.mongodb.client.model.Filters.eq;
 
 public final class DatabaseHelper {
 	public static Account createAccount(String username) {
-		return createAccountWithId(username, 0);
+		return createAccountWithUid(username, 0);
 	}
 
-	public static Account createAccountWithId(String username, int reservedId) {
+	public static Account createAccountWithUid(String username, int reservedUid) {
 		// Unique names only
-		Account exists = DatabaseHelper.getAccountByName(username);
-		if (exists != null) {
+		if (DatabaseHelper.checkIfAccountExists(username)) {
 			return null;
 		}
 
 		// Make sure there are no id collisions
-		if (reservedId > 0) {
+		if (reservedUid > 0) {
 			// Cannot make account with the same uid as the server console
-			if (reservedId == GameConstants.SERVER_CONSOLE_UID) {
+			if (reservedUid == GameConstants.SERVER_CONSOLE_UID) {
 				return null;
 			}
-
-			// Make sure not other accounts has that id as its reservedPlayerId
-			exists = DatabaseHelper.getAccountByPlayerId(reservedId);
-			if (exists != null) {
+			
+			if (DatabaseHelper.checkIfAccountExists(reservedUid)) {
 				return null;
 			}
-
+			
 			// Make sure no existing player already has this id.
-			Player existsPlayer = DatabaseHelper.getPlayerByUid(reservedId);
-			if (existsPlayer != null) {
+			if (DatabaseHelper.checkIfPlayerExists(reservedUid)) {
 				return null;
 			}
 		}
@@ -57,8 +54,8 @@ public final class DatabaseHelper {
 		account.setUsername(username);
 		account.setId(Integer.toString(DatabaseManager.getNextId(account)));
 
-		if (reservedId > 0) {
-			account.setReservedPlayerUid(reservedId);
+		if (reservedUid > 0) {
+			account.setReservedPlayerUid(reservedUid);
 		}
 
 		DatabaseHelper.saveAccount(account);
@@ -87,25 +84,33 @@ public final class DatabaseHelper {
 	}
 
 	public static Account getAccountByName(String username) {
-		return DatabaseManager.getGameDatastore().find(Account.class).filter(Filters.eq("username", username)).first();
+		return DatabaseManager.getAccountDatastore().find(Account.class).filter(Filters.eq("username", username)).first();
 	}
 
 	public static Account getAccountByToken(String token) {
 		if(token == null) return null;
-		return DatabaseManager.getGameDatastore().find(Account.class).filter(Filters.eq("token", token)).first();
+		return DatabaseManager.getAccountDatastore().find(Account.class).filter(Filters.eq("token", token)).first();
 	}
 
 	public static Account getAccountBySessionKey(String sessionKey) {
 		if(sessionKey == null) return null;
-		return DatabaseManager.getGameDatastore().find(Account.class).filter(Filters.eq("sessionKey", sessionKey)).first();
+		return DatabaseManager.getAccountDatastore().find(Account.class).filter(Filters.eq("sessionKey", sessionKey)).first();
 	}
 
 	public static Account getAccountById(String uid) {
-		return DatabaseManager.getGameDatastore().find(Account.class).filter(Filters.eq("_id", uid)).first();
+		return DatabaseManager.getAccountDatastore().find(Account.class).filter(Filters.eq("_id", uid)).first();
 	}
 
 	public static Account getAccountByPlayerId(int playerId) {
-		return DatabaseManager.getGameDatastore().find(Account.class).filter(Filters.eq("reservedPlayerId", playerId)).first();
+		return DatabaseManager.getAccountDatastore().find(Account.class).filter(Filters.eq("reservedPlayerId", playerId)).first();
+	}
+	
+	public static boolean checkIfAccountExists(String name) {
+		return DatabaseManager.getAccountDatastore().find(Account.class).filter(Filters.eq("username", name)).count() > 0;
+	}
+	
+	public static boolean checkIfAccountExists(int reservedUid) {
+		return DatabaseManager.getAccountDatastore().find(Account.class).filter(Filters.eq("reservedPlayerId", reservedUid)).count() > 0;
 	}
 
 	public static void deleteAccount(Account target) {
@@ -137,7 +142,7 @@ public final class DatabaseHelper {
         }
 
 		// Finally, delete the account itself.
-		DatabaseManager.getGameDatastore().find(Account.class).filter(Filters.eq("id", target.getId())).delete();
+		DatabaseManager.getAccountDatastore().find(Account.class).filter(Filters.eq("id", target.getId())).delete();
 	}
 
 	public static List<Player> getAllPlayers() {
@@ -152,21 +157,21 @@ public final class DatabaseHelper {
 		return DatabaseManager.getGameDatastore().find(Player.class).filter(Filters.eq("accountId", account.getId())).first();
 	}
 	
-	public static boolean checkPlayerExists(int uid) {
+	public static boolean checkIfPlayerExists(int uid) {
 		return DatabaseManager.getGameDatastore().find(Player.class).filter(Filters.eq("_id", uid)).count() > 0;
 	}
 
 	public static synchronized Player generatePlayerUid(Player character, int reservedId) {
 		// Check if reserved id
 		int id;
-		if (reservedId > 0 && !checkPlayerExists(reservedId)) {
+		if (reservedId > 0 && !checkIfPlayerExists(reservedId)) {
 			id = reservedId;
 			character.setUid(id);
 		} else {
 			do {
 				id = DatabaseManager.getNextId(character);
 			}
-			while (checkPlayerExists(id));
+			while (checkIfPlayerExists(id));
 			character.setUid(id);
 		}
 		// Save to database
@@ -177,13 +182,13 @@ public final class DatabaseHelper {
 	public static synchronized int getNextPlayerId(int reservedId) {
 		// Check if reserved id
 		int id;
-		if (reservedId > 0 && !checkPlayerExists(reservedId)) {
+		if (reservedId > 0 && !checkIfPlayerExists(reservedId)) {
 			id = reservedId;
 		} else {
 			do {
 				id = DatabaseManager.getNextId(Player.class);
 			}
-			while (checkPlayerExists(id));
+			while (checkIfPlayerExists(id));
 		}
 		return id;
 	}
@@ -290,5 +295,11 @@ public final class DatabaseHelper {
 	
 	public static boolean deleteQuest(GameMainQuest quest) {
 		return DatabaseManager.getGameDatastore().delete(quest).wasAcknowledged();
+	}
+	public static GameHome getHomeByUid(int id) {
+		return DatabaseManager.getGameDatastore().find(GameHome.class).filter(Filters.eq("ownerUid", id)).first();
+	}
+	public static void saveHome(GameHome gameHome) {
+		DatabaseManager.getGameDatastore().save(gameHome);
 	}
 }

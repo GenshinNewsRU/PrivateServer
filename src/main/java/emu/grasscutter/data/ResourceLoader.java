@@ -1,13 +1,18 @@
 package emu.grasscutter.data;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
+import emu.grasscutter.data.binout.*;
+import emu.grasscutter.scripts.SceneIndexManager;
 import emu.grasscutter.utils.Utils;
+import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
 import com.google.gson.JsonElement;
@@ -15,12 +20,6 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
 import emu.grasscutter.Grasscutter;
-import emu.grasscutter.data.binout.AbilityEmbryoEntry;
-import emu.grasscutter.data.binout.AbilityModifier;
-import emu.grasscutter.data.binout.AbilityModifierEntry;
-import emu.grasscutter.data.binout.MainQuestData;
-import emu.grasscutter.data.binout.OpenConfigEntry;
-import emu.grasscutter.data.binout.ScenePointEntry;
 import emu.grasscutter.data.binout.AbilityModifier.AbilityConfigData;
 import emu.grasscutter.data.binout.AbilityModifier.AbilityModifierAction;
 import emu.grasscutter.data.binout.AbilityModifier.AbilityModifierActionType;
@@ -66,37 +65,9 @@ public class ResourceLoader {
 		loadQuests();
 		// Load scene points - must be done AFTER resources are loaded
 		loadScenePoints();
-		// Custom - TODO move this somewhere else
-		try {
-			GameData.getAvatarSkillDepotDataMap().get(504).setAbilities(
-				new AbilityEmbryoEntry(
-					"", 
-					new String[] {
-						"Avatar_PlayerBoy_ExtraAttack_Wind",
-						"Avatar_Player_UziExplode_Mix",
-						"Avatar_Player_UziExplode",
-						"Avatar_Player_UziExplode_Strike_01",
-						"Avatar_Player_UziExplode_Strike_02",
-						"Avatar_Player_WindBreathe",
-						"Avatar_Player_WindBreathe_CameraController"
-					}
-			));
-			GameData.getAvatarSkillDepotDataMap().get(704).setAbilities(
-				new AbilityEmbryoEntry(
-					"", 
-					new String[] {
-						"Avatar_PlayerGirl_ExtraAttack_Wind",
-						"Avatar_Player_UziExplode_Mix",
-						"Avatar_Player_UziExplode",
-						"Avatar_Player_UziExplode_Strike_01",
-						"Avatar_Player_UziExplode_Strike_02",
-						"Avatar_Player_WindBreathe",
-						"Avatar_Player_WindBreathe_CameraController"
-					}
-			));
-		} catch (Exception e) {
-			Grasscutter.getLogger().error("Error loading abilities", e);
-		}
+		// Load default home layout
+		loadHomeworldDefaultSaveData();
+		loadNpcBornData();
 	}
 
 	public static void loadResources() {
@@ -243,6 +214,16 @@ public class ResourceLoader {
 				int s = config.abilities.size();
 				AbilityEmbryoEntry al = new AbilityEmbryoEntry(avatarName, config.abilities.stream().map(Object::toString).toArray(size -> new String[s]));
 				embryoList.add(al);
+			}
+			
+			File playerElementsFile = new File(Utils.toFilePath(RESOURCE("BinOutput/AbilityGroup/AbilityGroup_Other_PlayerElementAbility.json")));
+			
+			if (playerElementsFile.exists()) {
+				try (FileReader fileReader = new FileReader(playerElementsFile)) {
+					GameDepot.setPlayerAbilities(Grasscutter.getGsonFactory().fromJson(fileReader, new TypeToken<Map<String, AvatarConfig>>(){}.getType()));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		
@@ -415,16 +396,58 @@ public class ResourceLoader {
 		Grasscutter.getLogger().info("Loaded " + GameData.getMainQuestDataMap().size() + " MainQuestDatas.");
 	}
 
+	@SneakyThrows
+	private static void loadHomeworldDefaultSaveData(){
+		var folder = Files.list(Path.of(RESOURCE("BinOutput/HomeworldDefaultSave"))).toList();
+		var pattern = Pattern.compile("scene(.*)_home_config.json");
+
+		for(var file : folder){
+			var matcher = pattern.matcher(file.getFileName().toString());
+			if(!matcher.find()){
+				continue;
+			}
+			var sceneId = matcher.group(1);
+
+			var data = Grasscutter.getGsonFactory().fromJson(Files.readString(file), HomeworldDefaultSaveData.class);
+
+			GameData.getHomeworldDefaultSaveData().put(Integer.parseInt(sceneId), data);
+		}
+
+		Grasscutter.getLogger().info("Loaded " + GameData.getHomeworldDefaultSaveData().size() + " HomeworldDefaultSaveDatas.");
+	}
+
+	@SneakyThrows
+	private static void loadNpcBornData(){
+		var folder = Files.list(Path.of(RESOURCE("BinOutput/Scene/SceneNpcBorn"))).toList();
+
+		for(var file : folder){
+			if(file.toFile().isDirectory()){
+				continue;
+			}
+
+			var data = Grasscutter.getGsonFactory().fromJson(Files.readString(file), SceneNpcBornData.class);
+			if(data.getBornPosList() == null || data.getBornPosList().size() == 0){
+				continue;
+			}
+
+			data.setIndex(SceneIndexManager.buildIndex(3, data.getBornPosList(), item -> item.getPos().toPoint()));
+			GameData.getSceneNpcBornData().put(data.getSceneId(), data);
+		}
+
+		Grasscutter.getLogger().info("Loaded " + GameData.getSceneNpcBornData().size() + " SceneNpcBornDatas.");
+	}
+
 	// BinOutput configs
 	
-	private static class AvatarConfig {
+	public static class AvatarConfig {
+		@SerializedName(value="abilities", alternate={"targetAbilities"})
 		public ArrayList<AvatarConfigAbility> abilities;
-		
-		private static class AvatarConfigAbility {
-			public String abilityName;
-			public String toString() {
-				return abilityName;
-			}
+	}
+	
+	public static class AvatarConfigAbility {
+		public String abilityName;
+		public String toString() {
+			return abilityName;
 		}
 	}
 	

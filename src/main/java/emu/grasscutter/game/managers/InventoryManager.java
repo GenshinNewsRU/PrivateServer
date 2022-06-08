@@ -21,7 +21,6 @@ import emu.grasscutter.data.excels.AvatarSkillDepotData.InherentProudSkillOpens;
 import emu.grasscutter.game.avatar.Avatar;
 import emu.grasscutter.game.inventory.GameItem;
 import emu.grasscutter.game.inventory.ItemType;
-import emu.grasscutter.game.inventory.MaterialType;
 import emu.grasscutter.game.player.Player;
 import emu.grasscutter.game.props.ActionReason;
 import emu.grasscutter.game.shop.ShopChestBatchUseTable;
@@ -820,6 +819,7 @@ public class InventoryManager {
 		}
 		
 		int used = 0;
+		boolean useSuccess = false;
 		
 		// Use
 		switch (useItem.getItemData().getMaterialType()) {
@@ -840,6 +840,47 @@ public class InventoryManager {
 
 					int[] SatiationParams = useItem.getItemData().getSatiationParams();
 					used = player.getTeamManager().healAvatar(target, SatiationParams[0], SatiationParams[1]) ? 1 : 0;
+				}
+				break;
+			case MATERIAL_CONSUME:
+				// Make sure we have usage data for this material.
+				if (useItem.getItemData().getItemUse() == null) {
+					break;
+				}
+
+				// Handle forging blueprints.
+				if (useItem.getItemData().getItemUse().get(0).getUseOp().equals("ITEM_USE_UNLOCK_FORGE")) {
+					// Unlock.
+					useSuccess = player.getForgingManager().unlockForgingBlueprint(useItem);
+				}
+				// Handle combine diagrams.
+				if (useItem.getItemData().getItemUse().get(0).getUseOp().equals("ITEM_USE_UNLOCK_COMBINE")) {
+					// Unlock.
+					useSuccess = player.getServer().getCombineManger().unlockCombineDiagram(player, useItem);
+				}
+				break;
+			case MATERIAL_FURNITURE_FORMULA:
+			case MATERIAL_FURNITURE_SUITE_FORMULA:
+				if (useItem.getItemData().getItemUse() == null) {
+					break;
+				}
+				useSuccess = player.getFurnitureManager().unlockFurnitureOrSuite(useItem);
+
+				break;
+			case MATERIAL_CONSUME_BATCH_USE:
+				// Make sure we have usage data for this material.
+				if (useItem.getItemData().getItemUse() == null) {
+					break;
+				}
+
+				// Handle fragile/transient resin.
+				if (useItem.getItemId() == 107009 || useItem.getItemId() == 107012){				
+					// Add resin to the inventory.
+					ItemData resinItemData = GameData.getItemDataMap().get(106);
+					player.getInventory().addItem(new GameItem(resinItemData, 60 * count), ActionReason.PlayerUseItem);
+
+					// Set used amount.
+					used = count;
 				}
 				break;
 			case MATERIAL_CHEST:
@@ -906,8 +947,13 @@ public class InventoryManager {
 			used = 1;
 		}
 
+		// If we used at least one item, or one of the methods called here reports using the item successfully,
+		// we return the item to make UseItemRsp a success.
 		if (used > 0) {
 			player.getInventory().removeItem(useItem, used);
+			return useItem;
+		}
+		if (useSuccess) {
 			return useItem;
 		}
 

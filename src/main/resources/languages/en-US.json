@@ -52,7 +52,8 @@
       "run_mode_help": "Server run mode must be 'HYBRID', 'DISPATCH_ONLY', or 'GAME_ONLY'. Unable to start Grasscutter...",
       "create_resources": "Creating resources folder...",
       "resources_error": "Place a copy of 'BinOutput' and 'ExcelBinOutput' in the resources folder.",
-      "version": "Grasscutter version: %s-%s"
+      "version": "Grasscutter version: %s-%s",
+      "game_version": "Game version: %s"
     }
   },
   "commands": {
@@ -63,7 +64,8 @@
       "console_execute_error": "This command can only be run from the console.",
       "player_execute_error": "Run this command in-game.",
       "command_exist_error": "No command found.",
-      "no_description_specified": "No description specified.",
+      "no_usage_specified": "No usage specified",
+      "no_description_specified": "No description specified",
       "invalid": {
         "amount": "Invalid amount.",
         "artifactId": "Invalid artifact ID.",
@@ -136,7 +138,12 @@
     "coop": {
       "usage": "Usage: coop [host UID]",
       "success": "Summoned %s to %s's world.",
-      "description": "Forces someone to join the world of others"
+      "description": "Forces someone to join the world of others. If no one is targeted, it sends you into co-op mode anyway."
+    },
+    "drop": {
+      "command_usage": "Usage: drop <itemID|itemName> [amount]",
+      "success": "Dropped %s of %s.",
+      "description": "Drops an item near you"
     },
     "enter_dungeon": {
       "usage": "Usage: enterdungeon <dungeonID>",
@@ -179,13 +186,15 @@
       "success": "Godmode is now %s for %s.",
       "description": "Prevents you from taking damage. Defaults to toggle."
     },
-    "nostamina": {
-      "success": "NoStamina is now %s for %s.",
-      "description": "Keep your endurance to the maximum."
-    },
     "heal": {
       "success": "All characters have been healed.",
       "description": "Heal all characters in your current team."
+    },
+    "help": {
+      "usage": "Usage: ",
+      "aliases": "Aliases: ",
+      "available_commands": "Available commands: ",
+      "description": "Sends the help message or shows information about a specified command"
     },
     "kick": {
       "player_kick_player": "Player [%s:%s] has kicked player [%s:%s]",
@@ -212,6 +221,10 @@
     "list": {
       "success": "There are %s player(s) online:",
       "description": "List online players"
+    },
+    "nostamina": {
+      "success": "NoStamina is now %s for %s.",
+      "description": "Keep your endurance to the maximum."
     },
     "permission": {
       "usage": "Usage: permission <add|remove> <username> <permission>",
@@ -248,6 +261,9 @@
       "usage": "Usage: resetshop <playerID>",
       "success": "Reset complete.",
       "description": "Reset target player's shop refresh time"
+    },
+    "restart": {
+      "description": "Restarts the current session"
     },
     "sendMail": {
       "usage": "Usage: sendmail <userID|all|help> [templateID]",
@@ -304,7 +320,7 @@
       "description": "Sets your world level (Relog to see proper effects)"
     },
     "spawn": {
-      "usage": "Usage: spawn <entityID> [amount] [level(monster only)]",
+      "usage": "Usage: spawn <entityID> [amount] [level(monster only)] [<x> <y> <z>(monster only, optional)]",
       "success": "Spawned %s of %s.",
       "limit_reached": "Scene spawn limit reached. Spawning %s entities instead.",
       "description": "Spawns an entity near you"
@@ -361,29 +377,35 @@
       "success": "Teleported %s to %s, %s, %s in scene %s.",
       "description": "Change the player's position"
     },
+    "unlimitenergy": {
+      "success": "UnlimitEnergy is now %s for %s.",
+      "config_error": "Command is disabled, because energyUsage is false in config.json.",
+      "description": "Use the element does not waste energy"
+    },
+    "unlocktower": {
+      "success": "Abyss Corridor's Floors are all unlocked now.",
+      "description": "Unlock all levels of tower"
+    },
     "weather": {
-      "usage": "Usage: weather <climate type(weatherId)> <weather type(climateId)>\nWeather types: '0: None, 1: Sunny, 2: Cloudy, 3: Rain, 4: Thunderstorm, 5: Snow, 6: Mist'",
+      "usage": "Usage: weather <climate type(weatherId)> <weather type(climateId)>\nWeather types 0: None, 1: Sunny, 2: Cloudy, 3: Rain, 4: Thunderstorm, 5: Snow, 6: Mist",
       "success": "Changed climate type to %s with weather type %s.",
       "invalid_id": "Invalid ID.",
       "description": "Changes the weather"
     },
-    "drop": {
-      "command_usage": "Usage: drop <itemID|itemName> [amount]",
-      "success": "Dropped %s of %s.",
-      "description": "Drops an item near you"
+    "ban": {
+      "description": "Ban a player",
+      "success": "Successful.",
+      "failure": "Failed, player not found.",
+      "invalid_time": "Unable to parse timestamp.",
+      "invalid_player_id": "Unable to parse player ID.",
+      "command_usage": "Usage: ban <playerId> [timestamp] [reason]"
     },
-    "help": {
-      "usage": "Usage: ",
-      "aliases": "Aliases: ",
-      "available_commands": "Available commands: ",
-      "description": "Sends the help message or shows information about a specified command"
-    },
-    "restart": {
-      "description": "Restarts the current session"
-    },
-    "unlocktower": {
-      "success": "Unlock done.",
-      "description": "Unlock all levels of tower"
+    "unban": {
+      "description": "Unban a player",
+      "success": "Successful.",
+      "failure": "Failed, player not found.",
+      "invalid_player_id": "Unable to parse player ID.",
+      "command_usage": "Usage: unban <playerId>"
     }
   },
   "gacha": {
@@ -392,6 +414,11 @@
       "available_five_stars": "Available 5-star Items",
       "available_four_stars": "Available 4-star Items",
       "available_three_stars": "Available 3-star Items"
+    },
+    "records": {
+      "title": "Gacha Records",
+      "date": "Date",
+      "item": "Item"
     }
   },
   "documentation": {
